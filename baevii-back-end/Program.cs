@@ -100,10 +100,11 @@ logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
             CreateWallet createWallet = new CreateWallet { ChainType = "ethereum" };
             HttpResponseMessage createWalletResponseMsg = await privyClient.PostAsJsonAsync(CreateWallet.RouteTemplate, createWallet);
             string? createWalletResponseContent = await createWalletResponseMsg.Content.ReadAsStringAsync();
+            logger.LogInformation("createWalletResponseContent = " + createWalletResponseContent);
             CreateWallet.Response? createWalletResponse = JsonSerializer.Deserialize<CreateWallet.Response>(createWalletResponseContent);
             dbContext.serverWallets.Add(new ServerWallet
             {
-                PrivyId = privyWebhook.user.id,
+                PrivyId = createWalletResponse?.id,
                 Address = createWalletResponse?.address,
                 ChainType = createWalletResponse?.chain_type,
                 CreatedAt = DateTimeOffset.FromUnixTimeSeconds(createWalletResponse?.created_at ?? 0),
