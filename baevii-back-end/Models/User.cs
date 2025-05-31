@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 namespace baevii_back_end.Models;
+
 [Index(nameof(PrivyId), IsUnique = true)]
 public class User
 {

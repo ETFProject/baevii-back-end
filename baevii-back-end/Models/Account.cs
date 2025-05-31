@@ -4,6 +4,7 @@ public class Account
 {
     public int Id { get; set; }
     public int? UserId { get; set; }
+    public string? Address { get; set; }
     public string? ChainId { get; set; }
     public string? ChainType { get; set; }
     public string? ConnectorType { get; set; }

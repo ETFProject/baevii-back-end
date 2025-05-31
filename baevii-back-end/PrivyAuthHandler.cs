@@ -20,6 +20,10 @@ public class PrivyAuthHandler : DelegatingHandler
         var byteArray = System.Text.Encoding.ASCII.GetBytes($"{_privyConfig.AppId}:{_privyConfig.Secret}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
         request.Headers.Add("privy-app-id", _privyConfig.AppId);
+        if (request.Content != null)
+        {
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+        }
         return await base.SendAsync(request, cancellationToken);
     }
 }

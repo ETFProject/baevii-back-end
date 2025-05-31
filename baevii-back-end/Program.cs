@@ -107,7 +107,7 @@ logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
                 PrivyId = createWalletResponse?.id,
                 Address = createWalletResponse?.address,
                 ChainType = createWalletResponse?.chain_type,
-                CreatedAt = DateTimeOffset.FromUnixTimeSeconds(createWalletResponse?.created_at ?? 0),
+                CreatedAt = DateTimeOffset.FromUnixTimeMilliseconds(createWalletResponse?.created_at ?? 0),
                 User = newUser
             });
             await dbContext.SaveChangesAsync();
@@ -121,6 +121,7 @@ logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
             }
             dbContext.accounts.AddRange(privyWebhook.user.linked_accounts.Select(x => new Account
             {
+                Address = x.address,
                 ChainId = x.chain_id,
                 ChainType = x.chain_type,
                 ConnectorType = x.connector_type,
