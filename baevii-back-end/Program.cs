@@ -9,6 +9,18 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        policy =>
+        {
+            policy.AllowAnyOrigin() // Allows any origin
+                  .AllowAnyMethod()  // Allows any HTTP method (GET, POST, PUT, DELETE, etc.)
+                  .AllowAnyHeader(); // Allows any HTTP headers
+        });
+});
+
 builder.Services.Configure<PrivyConfiguration>(builder.Configuration.GetSection("Privy"));
 
 builder.Services.AddHostedService<Worker>();
@@ -50,6 +62,10 @@ app.UseHttpLogging();
 //swagger
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// Use CORS middleware - This must be placed after UseRouting and before UseAuthorization (if present) and endpoint mapping.
+// In Minimal APIs, the routing middleware is implicitly added.
+app.UseCors("AllowAllOrigins"); // Apply the "AllowAllOrigins" policy globally [1][5]
 
 //app.UseHttpsRedirection();
 
