@@ -1,10 +1,9 @@
 ﻿namespace baevii_back_end.DTO;
 
-public class PrivyWebhook
+public class PrivyUserCreated
 {
     public string type { get; set; }
     public User user { get; set; }
-    public Wallet wallet { get; set; }
 
     public class User
     {
@@ -23,23 +22,5 @@ public class PrivyWebhook
         public int latest_verified_at { get; set; }
         public string type { get; set; }
         public int verified_at { get; set; }
-        public string chain_id { get; set; }
-        public string chain_type { get; set; }
-        public string connector_type { get; set; }
-        public bool delegated { get; set; }
-        public object id { get; set; }
-        public bool imported { get; set; }
-        public string recovery_method { get; set; }
-        public string wallet_client { get; set; }
-        public string wallet_client_type { get; set; }
-        public int wallet_index { get; set; }
     }
-
-    public class Wallet
-    {
-        public string address { get; set; }
-        public string chain_type { get; set; }
-        public string type { get; set; }
-    }
-
 }

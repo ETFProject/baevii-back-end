@@ -1,6 +1,6 @@
 ﻿namespace baevii_back_end.DTO;
 
-public class PrivyWebhook
+public class PrivyWalletCreated
 {
     public string type { get; set; }
     public User user { get; set; }
@@ -41,5 +41,4 @@ public class PrivyWebhook
         public string chain_type { get; set; }
         public string type { get; set; }
     }
-
 }
