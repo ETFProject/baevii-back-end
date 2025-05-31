@@ -95,6 +95,7 @@ logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
                 CreatedAt = DateTimeOffset.FromUnixTimeSeconds(privyWebhook.user.created_at)
             };
             dbContext.users.Add(newUser);
+            await dbContext.SaveChangesAsync();
             HttpClient privyClient = httpClientFactory.CreateClient("Privy");
             CreateWallet createWallet = new CreateWallet { ChainType = "ethereum" };
             HttpResponseMessage createWalletResponseMsg = await privyClient.PostAsJsonAsync(CreateWallet.RouteTemplate, createWallet);
@@ -108,6 +109,7 @@ logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
                 CreatedAt = DateTimeOffset.FromUnixTimeSeconds(createWalletResponse?.created_at ?? 0),
                 User = newUser
             });
+            await dbContext.SaveChangesAsync();
             break;
 
         case "user.wallet_created":
@@ -126,13 +128,13 @@ logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
                 WalletClient = x.wallet_client,
                 WalletClientType = x.wallet_client_type
             }));
+            await dbContext.SaveChangesAsync();
             break;
 
         default:
             logger.LogWarning($"Unimplemented msg received (type {privyWebhook.type}");
             break;
     }
-    await dbContext.SaveChangesAsync();
 });
 
 await app.RunAsync();
