@@ -1,13 +1,24 @@
-﻿using Serilog;
+﻿using baevii_back_end.Configuration;
+using baevii_back_end.DTO;
+using baevii_back_end.Models;
 using baevii_back_end.Services;
-using baevii_back_end.Configuration;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder();
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<PrivyConfiguration>(builder.Configuration.GetSection("Privy"));
 
 builder.Services.AddHostedService<Worker>();
+
+builder.Services.AddDbContext<BeaviiDbContext>(options =>
+    options.UseSqlServer(builder.Configuration["Mssql:ConnStr"], o =>
+    {
+        o.EnableRetryOnFailure();
+        o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+    }));
 
 builder.Configuration["Serilog:WriteTo:2:Args:connectionString"] = String.Format(builder.Configuration["Serilog:WriteTo:2:Args:connectionString"], builder.Configuration["AzureBlobStorageAccountKey"]);
 builder.Services.AddSerilog(configureLogger =>
@@ -44,5 +55,15 @@ app.UseSwaggerUI();
 
 app.MapGet("/readyness", () => Results.Ok());
 app.MapGet("/liveness", () => Results.Ok());
+
+app.MapGet("/wallets", (BeaviiDbContext dbContext) =>
+{
+    return Results.Ok(dbContext.walletInfos);
+});
+
+app.MapPost("/privy", (PrivyWebhook privyWebhook, ILogger<Program> logger) =>
+{
+    logger.LogInformation($"msg = {privyWebhook.message} / type = {privyWebhook.type}");
+});
 
 await app.RunAsync();
