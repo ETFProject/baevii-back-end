@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Net.Http;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,21 +81,36 @@ app.MapGet("/wallets", async (BeaviiDbContext dbContext, IHttpClientFactory http
     return Results.Ok(dbContext.walletInfos);
 });
 
-app.MapPost("/privy", async (PrivyWebhook privyWebhook, BeaviiDbContext dbContext, ILogger<Program> logger) =>
+app.MapPost("/privy", async (PrivyWebhook privyWebhook, BeaviiDbContext dbContext, IHttpClientFactory httpClientFactory, ILogger<Program> logger) =>
 {
-    logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
+logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
     switch (privyWebhook.type)
     {
         case "user.created":
-            dbContext.users.Add(new User
+            User newUser = new User
             {
                 PrivyId = privyWebhook.user.id,
                 CreatedAt = DateTimeOffset.FromUnixTimeSeconds(privyWebhook.user.created_at)
+            };
+            dbContext.users.Add(newUser);
+            HttpClient privyClient = httpClientFactory.CreateClient("Privy");
+            CreateWallet createWallet = new CreateWallet { ChainType = "ethereum" };
+            HttpResponseMessage createWalletResponseMsg = await privyClient.PostAsJsonAsync(CreateWallet.RouteTemplate, createWallet);
+            string? createWalletResponseContent = await createWalletResponseMsg.Content.ReadAsStringAsync();
+            CreateWallet.Response? createWalletResponse = JsonSerializer.Deserialize<CreateWallet.Response>(createWalletResponseContent);
+            dbContext.serverWallets.Add(new ServerWallet
+            {
+                PrivyId = privyWebhook.user.id,
+                Address = createWalletResponse?.address,
+                ChainType = createWalletResponse?.chain_type,
+                CreatedAt = DateTimeOffset.FromUnixTimeSeconds(createWalletResponse?.created_at ?? 0),
+                User = newUser
             });
             break;
+
         case "user.wallet_created":
             User? user = await dbContext.users.Include(x => x.Accounts).FirstOrDefaultAsync(x => x.PrivyId == privyWebhook.user.id);
-            if(user is null)
+            if (user is null)
             {
                 throw new Exception($"Wallet Created webhook received for unknowm user with id {privyWebhook.user.id}");
             }
@@ -110,6 +126,7 @@ app.MapPost("/privy", async (PrivyWebhook privyWebhook, BeaviiDbContext dbContex
             }));
 
             break;
+
         default:
             logger.LogWarning($"Unimplemented msg received (type {privyWebhook.type}");
             break;
