@@ -52,17 +52,17 @@ builder.Services.AddHttpClient("Privy", client =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddHttpLogging(logging =>
-{
-    logging.LoggingFields = HttpLoggingFields.All; // Log everything: headers, body, etc.
-    logging.RequestBodyLogLimit = 4096; // Limit for request body logging (bytes)
-    logging.ResponseBodyLogLimit = 4096; // Limit for response body logging (bytes)
-    logging.CombineLogs = true; // Combine request/response logs into one entry
-});
+//builder.Services.AddHttpLogging(logging =>
+//{
+//    logging.LoggingFields = HttpLoggingFields.All; // Log everything: headers, body, etc.
+//    logging.RequestBodyLogLimit = 4096; // Limit for request body logging (bytes)
+//    logging.ResponseBodyLogLimit = 4096; // Limit for response body logging (bytes)
+//    logging.CombineLogs = true; // Combine request/response logs into one entry
+//});
 
 var app = builder.Build();
 
-app.UseHttpLogging();
+//app.UseHttpLogging();
 
 //swagger
 app.UseSwagger();
