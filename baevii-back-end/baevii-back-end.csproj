@@ -17,6 +17,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Nethereum.Accounts" Version="5.0.0" />
+    <PackageReference Include="Nethereum.Hex" Version="5.0.0" />
+    <PackageReference Include="Nethereum.RPC" Version="5.0.0" />
+    <PackageReference Include="Nethereum.Web3" Version="5.0.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.ApplicationInsights" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.AzureBlobStorage" Version="4.0.5" />

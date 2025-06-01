@@ -4,4 +4,5 @@ public class PrivyConfiguration
 {
     public string? AppId { get; set; }
     public string? Secret { get; set; }
+    public string? FundingPrivateKey { get; set; }
 }

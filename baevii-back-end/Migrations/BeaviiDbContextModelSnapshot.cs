@@ -58,7 +58,7 @@ namespace baevii_back_end.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("accounts");
+                    b.ToTable("accounts", (string)null);
                 });
 
             modelBuilder.Entity("baevii_back_end.Models.ServerWallet", b =>
@@ -88,7 +88,7 @@ namespace baevii_back_end.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("serverWallets");
+                    b.ToTable("serverWallets", (string)null);
                 });
 
             modelBuilder.Entity("baevii_back_end.Models.User", b =>
@@ -111,7 +111,7 @@ namespace baevii_back_end.Migrations
                         .IsUnique()
                         .HasFilter("[PrivyId] IS NOT NULL");
 
-                    b.ToTable("users");
+                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("baevii_back_end.Models.WalletInfo", b =>
@@ -133,7 +133,7 @@ namespace baevii_back_end.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("walletInfos");
+                    b.ToTable("walletInfos", (string)null);
                 });
 
             modelBuilder.Entity("baevii_back_end.Models.Account", b =>

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System.Net.Http;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +26,7 @@ builder.Services.AddCors(options =>
 builder.Services.Configure<PrivyConfiguration>(builder.Configuration.GetSection("Privy"));
 builder.Services.AddTransient<PrivyAuthHandler>();
 
-builder.Services.AddHostedService<Worker>();
+builder.Services.AddTransient<IFunder, Funder>();
 
 builder.Services.AddDbContext<BeaviiDbContext>(options =>
     options.UseSqlServer(builder.Configuration["Mssql:ConnStr"], o =>
@@ -83,7 +82,7 @@ app.MapGet("/user/{userId}", async (BeaviiDbContext dbContext, IHttpClientFactor
     return Results.Ok(new { serverWalletForUser?.PrivyId, serverWalletForUser?.Address });
 });
 
-app.MapPost("/privy", async (PrivyWebhook privyWebhook, BeaviiDbContext dbContext, IHttpClientFactory httpClientFactory, ILogger<Program> logger) =>
+app.MapPost("/privy", async (PrivyWebhook privyWebhook, BeaviiDbContext dbContext, IHttpClientFactory httpClientFactory, IFunder funder, ILogger<Program> logger) =>
 {
 logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
     switch (privyWebhook.type)
@@ -110,6 +109,8 @@ logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
                 CreatedAt = DateTimeOffset.FromUnixTimeMilliseconds(createWalletResponse?.created_at ?? 0),
                 User = newUser
             });
+            //fund the wallet to provide the gas for the agent
+            await funder.Fund(createWalletResponse?.address);
             await dbContext.SaveChangesAsync();
             break;
 
