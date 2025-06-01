@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Runtime.ConstrainedExecution;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -94,13 +95,15 @@ logger.LogInformation($"Privy MsgType {privyWebhook.type} received");
                 CreatedAt = DateTimeOffset.FromUnixTimeSeconds(privyWebhook.user.created_at)
             };
             dbContext.users.Add(newUser);
+            logger.LogInformation($"Created new user with privyId {privyWebhook.user.id}");
             await dbContext.SaveChangesAsync();
             HttpClient privyClient = httpClientFactory.CreateClient("Privy");
             CreateWallet createWallet = new CreateWallet { ChainType = "ethereum" };
             HttpResponseMessage createWalletResponseMsg = await privyClient.PostAsJsonAsync(CreateWallet.RouteTemplate, createWallet);
             string? createWalletResponseContent = await createWalletResponseMsg.Content.ReadAsStringAsync();
-            logger.LogInformation("createWalletResponseContent = " + createWalletResponseContent);
+            logger.LogDebug("createWalletResponseContent = " + createWalletResponseContent);
             CreateWallet.Response? createWalletResponse = JsonSerializer.Deserialize<CreateWallet.Response>(createWalletResponseContent);
+            logger.LogInformation($"Created server wallet with id {createWalletResponse?.id} and address {createWalletResponse?.address}");
             dbContext.serverWallets.Add(new ServerWallet
             {
                 PrivyId = createWalletResponse?.id,
