@@ -15,7 +15,7 @@ public class Funder(ILogger<Funder> logger, IOptions<PrivyConfiguration> privyOp
     {
         var account = new Account(privyOptions.Value.FundingPrivateKey);
         logger.LogInformation($"Funding wallet balance before funding = {await GetFlowBalance(account.Address)}");
-        string txHash = await SendEvmTransaction(privyOptions.Value.FundingPrivateKey, serverWalletAddress, (decimal)0.001);
+        string txHash = await SendEvmTransaction(privyOptions.Value.FundingPrivateKey, serverWalletAddress, (decimal)0.1);
         logger.LogInformation($"funding tx hash = {txHash}");
         logger.LogInformation($"Server wallet balance after funding = {await GetFlowBalance(serverWalletAddress)}");
         logger.LogInformation($"Funding wallet balance after funding = {await GetFlowBalance(account.Address)}");
